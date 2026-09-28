@@ -1,288 +1,585 @@
-/* =================================
-   MUSIC
-================================= */
+/* =========================================
+   SETTINGS
+========================================= */
+
+// Maksimal foto yang akan dicek
+const MAX_PHOTOS = 5000;
+
+// FORMAT FOTO
+// PNG = 1.png, 2.png, 3.png, dst.
+const PHOTO_EXTENSION = "png";
+
+// Jumlah foto yang dicek sekaligus
+const BATCH_SIZE = 25;
+
+
+/* =========================================
+   VARIABLES
+========================================= */
+
+const galleryGrid =
+  document.getElementById("galleryGrid");
+
+const galleryLoading =
+  document.getElementById("galleryLoading");
 
 const music =
-    document.getElementById("music");
+  document.getElementById("music");
+
+const photoViewer =
+  document.getElementById("photoViewer");
+
+const viewerImage =
+  document.getElementById("viewerImage");
+
+const viewerCounter =
+  document.getElementById("viewerCounter");
 
 
-function startMusic() {
+let photos = [];
 
-    music.volume = 0.35;
+let currentPhotoIndex = 0;
 
-    music.play().catch(() => {
 
-        console.log(
-            "Musik menunggu interaksi pengguna."
-        );
+/* =========================================
+   PAGE NAVIGATION
+========================================= */
+
+function showPage(pageName) {
+
+  document
+    .querySelectorAll(".page")
+    .forEach(page => {
+
+      page.classList.remove("active");
 
     });
 
+
+  const page =
+    document.getElementById(pageName);
+
+  if (page) {
+
+    page.classList.add("active");
+
+  }
+
+
+  // Mulai musik setelah user melakukan klik
+  startMusic();
+
 }
 
 
+/* =========================================
+   MUSIC
+========================================= */
 
-/* =================================
-   PAGE NAVIGATION
-================================= */
+function startMusic() {
 
-function openPage(pageName) {
+  if (!music) return;
 
-    startMusic();
+  music.volume = 0.5;
 
+  const promise =
+    music.play();
 
-    document
-        .querySelectorAll(".page")
-        .forEach(page => {
+  if (promise !== undefined) {
 
-            page.classList.remove("active");
+    promise.catch(() => {
+      // Browser memblokir autoplay.
+      // Akan dicoba lagi saat user klik.
+    });
 
-        });
+  }
 
-
-    const target =
-        document.getElementById(pageName);
-
-
-    target.classList.add("active");
+}
 
 
-    /*
+/* =========================================
+   CEK FOTO PNG
+========================================= */
 
-       Kalau kembali ke Home,
-       posisi Gallery dikembalikan
-       ke bagian paling atas.
+function checkPhoto(number) {
 
-    */
+  return new Promise(resolve => {
 
-    if (pageName === "home") {
+    const img = new Image();
 
-        document
-            .getElementById("gallery")
-            .scrollTop = 0;
+    const src =
+      `${number}.${PHOTO_EXTENSION}`;
+
+    img.onload = () => {
+
+      resolve({
+        number: number,
+        src: src
+      });
+
+    };
+
+    img.onerror = () => {
+
+      resolve(null);
+
+    };
+
+    img.src = src;
+
+  });
+
+}
+
+
+/* =========================================
+   LOAD GALLERY
+========================================= */
+
+async function loadGallery() {
+
+  galleryLoading.style.display =
+    "block";
+
+  galleryLoading.textContent =
+    "Loading memories...";
+
+  let missingStreak = 0;
+
+  const MAX_MISSING =
+    100;
+
+
+  for (
+    let start = 1;
+    start <= MAX_PHOTOS;
+    start += BATCH_SIZE
+  ) {
+
+    const end =
+      Math.min(
+        start + BATCH_SIZE - 1,
+        MAX_PHOTOS
+      );
+
+
+    const promises = [];
+
+
+    for (
+      let number = start;
+      number <= end;
+      number++
+    ) {
+
+      promises.push(
+        checkPhoto(number)
+      );
 
     }
 
-}
+
+    const results =
+      await Promise.all(promises);
 
 
-
-/* =================================
-   GALLERY
-================================= */
+    let foundInBatch = 0;
 
 
-/*
+    results.forEach(photo => {
 
-    Kamu bisa menggunakan:
+      if (photo) {
 
-    20 foto
-    atau
-    30 foto.
+        photos.push(photo);
 
-    Kode akan otomatis
-    menyembunyikan file yang
-    belum ada.
+        foundInBatch++;
 
-*/
+        missingStreak = 0;
 
-const totalPhotos = 30;
+        createPhotoElement(photo);
+
+      } else {
+
+        missingStreak++;
+
+      }
+
+    });
 
 
-const photoContainer =
-    document.getElementById(
-        "photo-container"
+    /*
+      Kalau sudah ketemu banyak nomor kosong
+      berturut-turut, anggap foto sudah habis.
+
+      Jadi tidak perlu mengecek sampai 5000
+      kalau sebenarnya cuma ada 100 foto.
+    */
+
+    if (
+      missingStreak >= MAX_MISSING
+    ) {
+
+      break;
+
+    }
+
+
+    // Beri sedikit waktu browser
+    // supaya halaman tidak terlalu berat
+    await new Promise(
+      resolve =>
+        setTimeout(resolve, 10)
     );
 
-
-for (
-    let i = 1;
-    i <= totalPhotos;
-    i++
-) {
-
-    const img =
-        document.createElement("img");
+  }
 
 
-    img.src =
-        `${i}.png`;
+  galleryLoading.style.display =
+    "none";
 
 
-    img.className =
-        "photo";
+  if (photos.length === 0) {
 
+    galleryLoading.style.display =
+      "block";
 
-    img.alt =
-        `Memory ${i}`;
+    galleryLoading.textContent =
+      "Belum ada foto ditemukan.";
 
-
-    img.loading =
-        "lazy";
-
-
-    /*
-        Kalau foto tidak ditemukan,
-        otomatis disembunyikan.
-    */
-
-    img.onerror = function () {
-
-        this.style.display =
-            "none";
-
-    };
-
-
-    /*
-        Klik foto
-        untuk fullscreen.
-    */
-
-    img.onclick = function () {
-
-        openPhoto(this.src);
-
-    };
-
-
-    photoContainer.appendChild(img);
+  }
 
 }
 
 
+/* =========================================
+   CREATE PHOTO
+========================================= */
 
-/* =================================
-   FULLSCREEN PHOTO
-================================= */
+function createPhotoElement(photo) {
 
-function openPhoto(src) {
+  const img =
+    document.createElement("img");
 
-    const viewer =
-        document.createElement("div");
+  img.className =
+    "photo";
 
+  img.src =
+    photo.src;
 
-    viewer.className =
-        "photo-viewer";
+  img.alt =
+    `Photo ${photo.number}`;
 
+  img.loading =
+    "lazy";
 
-    viewer.innerHTML = `
-
-        <div
-            class="close-viewer"
-        >
-            ×
-        </div>
-
-        <img
-            src="${src}"
-            alt="Photo"
-        >
-
-    `;
+  img.decoding =
+    "async";
 
 
-    /*
-        Tambahkan style viewer
-        langsung melalui JS.
-    */
+  img.addEventListener(
+    "click",
+    () => {
 
-    viewer.style.position =
-        "fixed";
-
-    viewer.style.inset =
-        "0";
-
-    viewer.style.zIndex =
-        "100";
-
-    viewer.style.background =
-        "rgba(0,0,0,0.92)";
-
-    viewer.style.display =
-        "flex";
-
-    viewer.style.alignItems =
-        "center";
-
-    viewer.style.justifyContent =
-        "center";
-
-    viewer.style.padding =
-        "20px";
-
-
-    const image =
-        viewer.querySelector("img");
-
-
-    image.style.maxWidth =
-        "95%";
-
-    image.style.maxHeight =
-        "90%";
-
-    image.style.objectFit =
-        "contain";
-
-
-    const close =
-        viewer.querySelector(
-            ".close-viewer"
+      const index =
+        photos.findIndex(
+          item =>
+            item.number === photo.number
         );
 
+      if (index !== -1) {
 
-    close.style.position =
-        "absolute";
+        openPhoto(index);
 
-    close.style.top =
-        "15px";
+      }
 
-    close.style.right =
-        "25px";
-
-    close.style.fontSize =
-        "40px";
-
-    close.style.color =
-        "white";
-
-    close.style.cursor =
-        "pointer";
+    }
+  );
 
 
-    document.body.appendChild(
-        viewer
-    );
-
-
-    close.onclick = function () {
-
-        viewer.remove();
-
-    };
-
-
-    viewer.onclick = function(e) {
-
-        if (e.target === viewer) {
-
-            viewer.remove();
-
-        }
-
-    };
+  galleryGrid.appendChild(img);
 
 }
 
 
+/* =========================================
+   OPEN PHOTO
+========================================= */
 
-/* =================================
-   START MUSIC AFTER USER TOUCH
-================================= */
+function openPhoto(index) {
+
+  if (
+    index < 0 ||
+    index >= photos.length
+  ) {
+
+    return;
+
+  }
+
+
+  currentPhotoIndex =
+    index;
+
+
+  updateViewer();
+
+
+  photoViewer.classList.add(
+    "active"
+  );
+
+
+  document.body.style.overflow =
+    "hidden";
+
+}
+
+
+/* =========================================
+   UPDATE VIEWER
+========================================= */
+
+function updateViewer() {
+
+  const photo =
+    photos[currentPhotoIndex];
+
+  if (!photo) return;
+
+
+  viewerImage.src =
+    photo.src;
+
+
+  viewerCounter.textContent =
+    `${currentPhotoIndex + 1} / ${photos.length}`;
+
+}
+
+
+/* =========================================
+   NEXT PHOTO
+========================================= */
+
+function showNextPhoto() {
+
+  if (!photos.length) return;
+
+
+  currentPhotoIndex++;
+
+  if (
+    currentPhotoIndex >=
+    photos.length
+  ) {
+
+    currentPhotoIndex = 0;
+
+  }
+
+
+  updateViewer();
+
+}
+
+
+/* =========================================
+   PREVIOUS PHOTO
+========================================= */
+
+function showPreviousPhoto() {
+
+  if (!photos.length) return;
+
+
+  currentPhotoIndex--;
+
+  if (
+    currentPhotoIndex < 0
+  ) {
+
+    currentPhotoIndex =
+      photos.length - 1;
+
+  }
+
+
+  updateViewer();
+
+}
+
+
+/* =========================================
+   CLOSE VIEWER
+========================================= */
+
+function closeViewer() {
+
+  photoViewer.classList.remove(
+    "active"
+  );
+
+
+  viewerImage.src = "";
+
+
+  document.body.style.overflow =
+    "hidden";
+
+}
+
+
+/* =========================================
+   KEYBOARD
+========================================= */
 
 document.addEventListener(
-    "click",
-    startMusic,
-    { once: true }
+  "keydown",
+  event => {
+
+    if (
+      !photoViewer.classList.contains(
+        "active"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    if (
+      event.key === "ArrowRight"
+    ) {
+
+      showNextPhoto();
+
+    }
+
+
+    if (
+      event.key === "ArrowLeft"
+    ) {
+
+      showPreviousPhoto();
+
+    }
+
+
+    if (
+      event.key === "Escape"
+    ) {
+
+      closeViewer();
+
+    }
+
+  }
 );
+
+
+/* =========================================
+   MOBILE SWIPE
+========================================= */
+
+let touchStartX = 0;
+let touchEndX = 0;
+
+
+photoViewer.addEventListener(
+  "touchstart",
+  event => {
+
+    touchStartX =
+      event.changedTouches[0].screenX;
+
+  },
+  { passive: true }
+);
+
+
+photoViewer.addEventListener(
+  "touchend",
+  event => {
+
+    touchEndX =
+      event.changedTouches[0].screenX;
+
+    handleSwipe();
+
+  },
+  { passive: true }
+);
+
+
+function handleSwipe() {
+
+  const difference =
+    touchStartX - touchEndX;
+
+
+  // Geser kiri
+  if (
+    difference > 50
+  ) {
+
+    showNextPhoto();
+
+  }
+
+
+  // Geser kanan
+  if (
+    difference < -50
+  ) {
+
+    showPreviousPhoto();
+
+  }
+
+}
+
+
+/* =========================================
+   CLICK OUTSIDE PHOTO
+========================================= */
+
+photoViewer.addEventListener(
+  "click",
+  event => {
+
+    if (
+      event.target ===
+      photoViewer
+    ) {
+
+      closeViewer();
+
+    }
+
+  }
+);
+
+
+/* =========================================
+   START MUSIC ON FIRST CLICK
+========================================= */
+
+document.addEventListener(
+  "click",
+  () => {
+
+    startMusic();
+
+  },
+  {
+    once: true
+  }
+);
+
+
+/* =========================================
+   START GALLERY
+========================================= */
+
+loadGallery();

@@ -1,234 +1,193 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <meta
-        name="viewport"
-        content="width=device-width, initial-scale=1.0"
-    >
+  <title>tercas.evernity</title>
 
-    <title>tercas.evernity</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 
-    <!-- CSS -->
-    <link rel="stylesheet" href="style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=Great+Vibes&display=swap" rel="stylesheet">
 
-    <!-- Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-
-    <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Great+Vibes&display=swap"
-        rel="stylesheet"
-    >
+  <link rel="stylesheet" href="style.css">
 </head>
-
 
 <body>
 
-    <!-- =================================
-         MUSIC
-    ================================== -->
+  <!-- HOME -->
+  <section id="home" class="page active">
 
-    <audio
-        id="music"
-        src="mp3.mp3"
-        loop
-    ></audio>
+    <div class="overlay"></div>
 
+    <div class="home-content">
 
-    <!-- =================================
-         HOME
-    ================================== -->
+      <p class="welcome">
+        WELCOME TO
+      </p>
 
-    <section
-        id="home"
-        class="page home-page active"
-    >
+      <h1>
+        tercas.evernity
+      </h1>
 
-        <div class="background-overlay"></div>
+      <p class="subtitle">
+        a little place filled with memories
+      </p>
 
-        <div class="home-content">
+      <div class="buttons">
 
-            <p class="welcome">
-                welcome to
-            </p>
-
-            <h1>
-                tercas.evernity
-            </h1>
-
-            <p class="choose">
-                choose where you want to go
-            </p>
-
-
-            <div class="menu-buttons">
-
-                <button
-                    class="menu-button"
-                    onclick="openPage('instagram')"
-                >
-                    <span>♡</span>
-                    Instagram
-                </button>
-
-
-                <button
-                    class="menu-button"
-                    onclick="openPage('gallery')"
-                >
-                    <span>✦</span>
-                    Gallery
-                </button>
-
-            </div>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =================================
-         INSTAGRAM
-    ================================== -->
-
-    <section
-        id="instagram"
-        class="page instagram-page"
-    >
-
-        <div class="background-overlay"></div>
-
-
-        <!-- BACK TO HOME -->
-
-        <button
-            class="back-button"
-            onclick="openPage('home')"
-        >
-            ← <span>Back</span>
+        <button onclick="showPage('instagram')">
+          Instagram
         </button>
 
-
-        <div class="instagram-content">
-
-
-            <!-- LATIN TITLE -->
-
-            <div class="latin-title">
-                tercas.evernity
-            </div>
-
-
-            <!-- PROFILE -->
-
-            <img
-                src="profil.png"
-                class="profile"
-                alt="Profile"
-            >
-
-
-            <!-- USERNAME -->
-
-            <div class="username">
-                @tercas.evernity
-            </div>
-
-
-            <!-- BARCODE -->
-
-            <div class="barcode-box">
-
-                <img
-                    src="barcode.png"
-                    class="barcode"
-                    alt="Instagram Barcode"
-                >
-
-            </div>
-
-
-            <p class="scan-text">
-                scan me ♡
-            </p>
-
-
-            <!-- INSTAGRAM BUTTON -->
-
-            <a
-                href="https://instagram.com/tercas.evernity"
-                target="_blank"
-                class="instagram-button"
-            >
-                Open Instagram
-            </a>
-
-        </div>
-
-    </section>
-
-
-
-    <!-- =================================
-         GALLERY
-    ================================== -->
-
-    <section
-        id="gallery"
-        class="page gallery-page"
-    >
-
-        <div class="gallery-overlay"></div>
-
-
-        <!-- BACK TO HOME -->
-
-        <button
-            class="back-button"
-            onclick="openPage('home')"
-        >
-            ← <span>Back</span>
+        <button onclick="showPage('gallery')">
+          Gallery
         </button>
 
+      </div>
 
-        <!-- GALLERY TITLE -->
+    </div>
 
-        <div class="gallery-header">
-
-            <p>
-                little pieces of
-            </p>
-
-            <h1>
-                memories
-            </h1>
-
-            <span>
-                ♡ tercas.evernity ♡
-            </span>
-
-        </div>
+  </section>
 
 
-        <!-- PHOTOS WILL APPEAR HERE -->
+  <!-- INSTAGRAM -->
+  <section id="instagram" class="page">
 
-        <div
-            id="photo-container"
-            class="photo-container"
-        ></div>
+    <div class="overlay"></div>
 
-    </section>
+    <button
+      class="back-button"
+      onclick="showPage('home')"
+    >
+      ← Back
+    </button>
+
+    <div class="instagram-content">
+
+      <div class="profile-card">
+
+        <img
+          src="profil.png"
+          class="profile"
+          alt="Profile"
+        >
+
+        <h2>
+          tercas.evernity
+        </h2>
+
+        <p>
+          @tercas.evernity
+        </p>
+
+        <img
+          src="barcode.png"
+          class="barcode"
+          alt="Instagram Barcode"
+        >
+
+        <a
+          href="https://instagram.com/tercas.evernity"
+          target="_blank"
+          class="instagram-button"
+        >
+          Open Instagram
+        </a>
+
+      </div>
+
+    </div>
+
+  </section>
 
 
+  <!-- GALLERY -->
+  <section id="gallery" class="page">
 
-    <!-- JAVASCRIPT -->
+    <div class="overlay"></div>
 
-    <script src="script.js"></script>
+    <button
+      class="back-button"
+      onclick="showPage('home')"
+    >
+      ← Back
+    </button>
+
+    <div class="gallery-container">
+
+      <div class="gallery-title">
+
+        <p>
+          OUR LITTLE MEMORIES
+        </p>
+
+        <h2>
+          Gallery
+        </h2>
+
+      </div>
+
+      <div id="galleryLoading">
+        Loading memories...
+      </div>
+
+      <div id="galleryGrid"></div>
+
+    </div>
+
+  </section>
+
+
+  <!-- MUSIC -->
+  <audio
+    id="music"
+    loop
+    preload="auto"
+  >
+    <source src="mp3.mp3" type="audio/mpeg">
+  </audio>
+
+
+  <!-- PHOTO VIEWER -->
+  <div id="photoViewer">
+
+    <button
+      id="viewerClose"
+      onclick="closeViewer()"
+    >
+      ×
+    </button>
+
+    <div id="viewerCounter"></div>
+
+    <button
+      id="viewerPrev"
+      class="viewer-button"
+      onclick="showPreviousPhoto()"
+    >
+      ‹
+    </button>
+
+    <img
+      id="viewerImage"
+      src=""
+      alt="Photo"
+    >
+
+    <button
+      id="viewerNext"
+      class="viewer-button"
+      onclick="showNextPhoto()"
+    >
+      ›
+    </button>
+
+  </div>
+
+
+  <script src="script.js"></script>
 
 </body>
-
 </html>
